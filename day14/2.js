@@ -1,17 +1,33 @@
 const fs = require('fs');
-/*
+
 const program = fs.readFileSync('input.txt', 'utf8')
   .split('\n').filter(n => n);
-*/
-const program = [
-  'mask = 000000000000000000000000000000X1001X',
-  'mem[42] = 100',
-  'mask = 00000000000000000000000000000000X0XX',
-  'mem[26] = 1'
-];
 
 const mem = new Map();
 let mask;
+
+const parseAddresses = (maskedAddress, addresses = []) => {
+  const floatingBits = [...maskedAddress].map((bit, index) => {
+    if (bit === 'X') return index;
+  }).filter(n => n !== undefined);
+
+  const index = floatingBits[0];
+
+  const branch0 = maskedAddress.slice(0, index) +
+    '0' + maskedAddress.slice(index + 1);
+  const branch1 = maskedAddress.slice(0, index) +
+    '1' + maskedAddress.slice(index + 1);
+
+  if (floatingBits.length === 1) {
+    addresses.push(branch0)
+    addresses.push(branch1)
+  } else {
+    parseAddresses(branch0, addresses);
+    parseAddresses(branch1, addresses);
+  }
+
+  return addresses;
+}
 
 const storeValue = (address, value) => {
   const binaryAddress = address.toString(2).padStart(36, '0');
@@ -22,10 +38,8 @@ const storeValue = (address, value) => {
     else maskedAddress += mask[index];
   }
 
-  const addresses = [];
-  for (const [index, bit] of [...maskedAddress].entries()) {
-    
-  }
+  const addresses = parseAddresses(maskedAddress);
+  for (const address of addresses) mem.set(address, value);
 }
 
 for (const line of program) {
@@ -37,9 +51,4 @@ for (const line of program) {
   }
 }
 
-/*
-let sum = 0;
-for (const value of mem.values()) sum += value;
-
-console.log(sum);
-*/
+console.log([...mem.values()].reduce((acc, cur) => acc + cur, 0));
