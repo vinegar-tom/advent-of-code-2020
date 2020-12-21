@@ -5,3 +5,4 @@ These are my solutions to [Advent of Code](https://adventofcode.com/) 2020. All 
 ## Uncompleted or unattempted parts
 
 1. Day 13, part 2
+2. Day 17, parts 1 & 2
